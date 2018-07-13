@@ -21,6 +21,8 @@
  * @copyright  (C) 2015 Remote Learner.net Inc http://www.remote-learner.net
  */
 
+defined('MOODLE_INTERNAL') || die;
+
 /**
  * Define all the backup steps that will be used by the backup_adobeconnect_activity_task
  */
@@ -32,10 +34,9 @@ class backup_adobeconnect_activity_structure_step extends backup_activity_struct
 
     protected function define_structure() {
 
-        // To know if we are including userinfo
-        //$userinfo = $this->get_setting_value('userinfo');
+        // To know if we are including userinfo.
 
-        // Define each element separated
+        // Define each element separated.
         $adobeconnect = new backup_nested_element('adobeconnect', array('id'), array(
                 'name', 'intro', 'introformat', 'templatescoid',
                 'meeturl', 'starttime', 'endtime', 'meetingpublic',
@@ -46,11 +47,11 @@ class backup_adobeconnect_activity_structure_step extends backup_activity_struct
         $meetinggroup = new backup_nested_element('meeting_group', array('id'), array(
             'meetingscoid', 'groupid'));
 
-        // Build the tree
+        // Build the tree.
         $adobeconnect->add_child($meetinggroups);
         $meetinggroups->add_child($meetinggroup);
 
-        // Define sources
+        // Define sources.
         $adobeconnect->set_source_table('adobeconnect', array('id' => backup::VAR_ACTIVITYID));
 
         $meetinggroup->set_source_sql('
@@ -61,10 +62,10 @@ class backup_adobeconnect_activity_structure_step extends backup_activity_struct
 
         $meetinggroup->annotate_ids('group', 'groupid');
 
-        // Define file annotations
-        $adobeconnect->annotate_files('mod_adobeconnect', 'intro', null); // This file area hasn't itemid
+        // Define file annotations.
+        $adobeconnect->annotate_files('mod_adobeconnect', 'intro', null); // This file area hasn't itemid.
 
-        // Return the root element (survey), wrapped into standard activity structure
+        // Return the root element (survey), wrapped into standard activity structure.
         return $this->prepare_activity_structure($adobeconnect);
     }
 }

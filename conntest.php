@@ -29,7 +29,7 @@ require_login(SITEID, false);
 
 global $USER, $CFG, $DB, $OUTPUT;
 
-$checkifempty = true; // Check for uninitialized variable
+$checkifempty = true; // Check for uninitialized variable.
 
 $url = new moodle_url('/mod/adobeconnect/conntest.php');
 $PAGE->set_url($url);
@@ -65,14 +65,14 @@ $ac->https = $DB->get_field('config', 'value', $param);
 
 foreach ($ac as $propertyname => $propertyvalue) {
 
-    // Check if the property is equal to email login or https check boxes
-    // These are the only values allowed to be empty
+    // Check if the property is equal to email login or https check boxes.
+    // These are the only values allowed to be empty.
     $isnotemaillogin   = strcmp($propertyname, 'emaillogin');
     $isnothttps        = strcmp($propertyname, 'https');
 
     $checkifempty = $isnotemaillogin && $isnothttps;
 
-    // If this property is empty
+    // If this property is empty.
     if ($checkifempty and empty($propertyvalue)) {
         print_error('error2', 'adobeconnect', '', $propertyname);
         die();
@@ -85,7 +85,6 @@ $strtitle = get_string('connectiontesttitle', 'adobeconnect');
 $systemcontext = context_system::instance();
 $PAGE->set_context($systemcontext);
 $PAGE->set_title($strtitle);
-//$PAGE->set_heading($strtitle);
 
 echo $OUTPUT->header();
 echo $OUTPUT->box_start('center');

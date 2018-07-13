@@ -21,17 +21,19 @@
  * @copyright  (C) 2015 Remote Learner.net Inc http://www.remote-learner.net
  */
 
+defined('MOODLE_INTERNAL') || die;
+
 class connect_class {
-    var $_serverurl;
-    var $_serverport;
-    var $_username;
-    var $_password;
-    var $_cookie;
-    var $_xmlrequest;
-    var $_xmlresponse;
-    var $_apicall;
-    var $_connection;
-    var $_https;
+    public $_serverurl;
+    public $_serverport;
+    public $_username;
+    public $_password;
+    public $_cookie;
+    public $_xmlrequest;
+    public $_xmlresponse;
+    public $_apicall;
+    public $_connection;
+    public $_https;
 
     public function __construct($serverurl = '', $serverport = 80,
                                 $username = '', $password = '',
@@ -124,7 +126,7 @@ class connect_class {
 
         if (false === $httpsexists and false !== $httpexists) {
             $serverurl = str_replace('http://', 'https://', $this->_serverurl);
-        } elseif (false === $httpsexists) {
+        } else if (false === $httpsexists) {
             $serverurl = 'https://' . $this->_serverurl;
         }
 
@@ -134,10 +136,10 @@ class connect_class {
 
     /**
      * Posts XML to the Adobe Connect server and returns the results
-     * @param int $return_header 1 to include the response header, 0 to not
-     * @param array $add_header an array of headers to add to the request
+     * @param int $returnheader 1 to include the response header, 0 to not
+     * @param array $addheader an array of headers to add to the request
      */
-    public function send_request($return_header = 0, $add_header = array(), $stop = false) {
+    public function send_request($returnheader = 0, $addheader = array(), $stop = false) {
         global $CFG;
 
         $ch = curl_init();
@@ -152,30 +154,26 @@ class connect_class {
             $serverurl = $this->make_https();
         }
 
-
         if ($stop) {
-//            echo $this->_serverurl . '?session='. $this->_cookie; die();
-//            https://example.com/api/xml?action=principal=list
-            curl_setopt($ch, CURLOPT_URL, $serverurl/* . '?action=login&external-auth=use'*/);
+            curl_setopt($ch, CURLOPT_URL, $serverurl);
 
         } else {
 
-            $querystring = (!empty($this->_cookie)) ?  '?session='. $this->_cookie : '';
+            $querystring = (!empty($this->_cookie)) ? '?session='. $this->_cookie : '';
             curl_setopt($ch, CURLOPT_URL, $serverurl . $querystring);
 
         }
 
+        // Connect through a proxy if Moodle config says we should.
+        if (isset($CFG->proxyhost)) {
 
-       // Connect through a proxy if Moodle config says we should
-       if(isset($CFG->proxyhost)) {
+            curl_setopt($ch, CURLOPT_PROXY, $CFG->proxyhost);
 
-           curl_setopt($ch, CURLOPT_PROXY, $CFG->proxyhost);
+            if (isset($CFG->proxyport)) {
 
-           if(isset($CFG->proxyport)) {
-
-               curl_setopt($ch, CURLOPT_PROXYPORT, $CFG->proxyport);
-           }
-       }
+                curl_setopt($ch, CURLOPT_PROXYPORT, $CFG->proxyport);
+            }
+        }
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $this->_xmlrequest);
@@ -185,12 +183,12 @@ class connect_class {
         curl_setopt($ch, CURLOPT_PORT, $this->_serverport);
 
         $header = $this->get_deafult_header();
-        $header = array_merge($header, $add_header);
+        $header = array_merge($header, $addheader);
 
         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
 
-        // Include header from response
-        curl_setopt($ch, CURLOPT_HEADER, $return_header);
+        // Include header from response.
+        curl_setopt($ch, CURLOPT_HEADER, $returnheader);
 
         $result = curl_exec($ch);
 
@@ -203,19 +201,19 @@ class connect_class {
      * Sends the HTTP header login request and returns the response xml
      * @param string username username to use for header x-user-id
      */
-    public function request_http_header_login($return_header = 0, $username = '', $stop = false) {
+    public function request_http_header_login($returnheader = 0, $username = '', $stop = false) {
         global $CFG;
 
         $hearder = array();
         $this->create_http_head_login_xml();
 
         // The first parameter is 1 because we want to include the response header
-        // to extract the session cookie
+        // to extract the session cookie.
         if (!empty($username)) {
             $hearder = array("$CFG->adobeconnect_admin_httpauth: " . $username);
         }
 
-        $this->_xmlresponse = $this->send_request($return_header, $hearder, $stop);
+        $this->_xmlresponse = $this->send_request($returnheader, $hearder, $stop);
 
         $this->set_session_cookie($this->_xmlresponse);
 
@@ -235,7 +233,7 @@ class connect_class {
 
         $writer->startElement('params');
 
-        foreach($params as $key => $data) {
+        foreach ($params as $key => $data) {
             $writer->startElement('param');
             $writer->writeAttribute('name', $key);
             $writer->text($data);
@@ -265,11 +263,10 @@ class connect_class {
 
         if (false !== $sessionstart) {
             $sessionend = strpos($data, ';');
-//            $sessionend = strpos($data, 'Expires:');
 
             $sessionlength = strlen('BREEZESESSION=');
             $sessionvallength = $sessionend - ($sessionstart + $sessionlength);
-            $sessionval = substr($data, $sessionstart+$sessionlength, $sessionvallength);
+            $sessionval = substr($data, $sessionstart + $sessionlength, $sessionvallength);
         }
 
         $this->_cookie = $sessionval;
@@ -310,36 +307,35 @@ class connect_class {
      * @return string $sessoin returns the session id
      */
     public function read_cookie_xml($xml = '') {
-            global $CFG, $USER, $COURSE;
+        global $CFG, $USER, $COURSE;
 
-            if (empty($xml)) {
-                if (is_siteadmin($USER->id)) {
-                    notice(get_string('adminemptyxml', 'adobeconnect'),
-                           $CFG->wwwroot . '/admin/settings.php?section=modsettingadobeconnect');
-                } else {
-                    notice(get_string('emptyxml', 'adobeconnect'),
-                           '', $COURSE);
+        if (empty($xml)) {
+            if (is_siteadmin($USER->id)) {
+                notice(get_string('adminemptyxml', 'adobeconnect'),
+                        $CFG->wwwroot . '/admin/settings.php?section=modsettingadobeconnect');
+            } else {
+                notice(get_string('emptyxml', 'adobeconnect'),
+                        '', $COURSE);
+            }
+        }
+
+        $session = false;
+        $reader = new XMLReader();
+        $reader->XML($xml, 'UTF-8');
+
+        while ($reader->read()) {
+            if (0 == strcmp($reader->name, 'cookie')) {
+                if (1 == $reader->nodeType) {
+                    $session = $reader->readString();
                 }
             }
+        }
 
-            $session = false;
-//            $accountid = false;
-            $reader = new XMLReader();
-            $reader->XML($xml, 'UTF-8');
+        $reader->close();
 
-            while ($reader->read()) {
-	            if (0 == strcmp($reader->name, 'cookie')) {
-                    if (1 == $reader->nodeType) {
-                        $session = $reader->readString();
-                    }
-                }
-            }
+        $this->_cookie = $session;
 
-            $reader->close();
-
-            $this->_cookie = $session;
-
-            return $session;
+        return $session;
     }
 
     public function response_to_object() {

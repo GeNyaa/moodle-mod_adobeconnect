@@ -21,6 +21,8 @@
  * @copyright  (C) 2015 Remote Learner.net Inc http://www.remote-learner.net
  */
 
+defined('MOODLE_INTERNAL') || die;
+
 $plugin->version   = 2018071202;
 $plugin->requires  = 2017111300;
 $plugin->cron      = 0;

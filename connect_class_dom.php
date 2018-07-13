@@ -21,31 +21,23 @@
  * @copyright  (C) 2015 Remote Learner.net Inc http://www.remote-learner.net
  */
 
+defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->dirroot . '/mod/adobeconnect/connect_class.php');
 
 class connect_class_dom extends connect_class {
-
-    public function __construct($serverurl = '', $serverport = '',
-                                $username = '', $password = '',
-                                $cookie = '', $https) {
-        parent::__construct($serverurl, $serverport, $username, $password, $cookie, $https);
-
-    }
 
     public function create_request($params = array(), $sentrequest = true) {
         if (empty($params)) {
             return false;
         }
 
-
         $dom = new DOMDocument('1.0', 'UTF-8');
 
         $root = $dom->createElement('params');
         $dom->appendChild($root);
 
-
-        foreach($params as $key => $data) {
+        foreach ($params as $key => $data) {
 
             $datahtmlent = htmlentities($data, ENT_COMPAT, 'UTF-8');
             $child = $dom->createElement('param', $datahtmlent);
@@ -148,26 +140,26 @@ class connect_class_dom extends connect_class {
      * Sends the HTTP header login request and returns the response xml
      * @param string username username to use for header x-user-id
      */
-    public function request_http_header_login($return_header = 0, $username = '', $stop = false) {
+    public function request_http_header_login($returnheader = 0, $username = '', $stop = false) {
         global $CFG;
 
         $header = array();
         $this->create_http_head_login_xml();
 
         // The first parameter is 1 because we want to include the response header
-        // to extract the session cookie
+        // to extract the session cookie.
         if (!empty($username)) {
             $header = array("$CFG->adobeconnect_admin_httpauth: " . $username);
         }
 
-        $this->_xmlresponse = $this->send_request($return_header, $header, $stop);
+        $this->_xmlresponse = $this->send_request($returnheader, $header, $stop);
 
         $this->set_session_cookie($this->_xmlresponse);
 
         return $this->_xmlresponse;
     }
 
-   private function create_http_head_login_xml() {
+    private function create_http_head_login_xml() {
         $params = array('action' => 'login',
                         'external-auth' => 'use',
                         );

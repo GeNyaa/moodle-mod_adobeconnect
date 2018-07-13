@@ -25,7 +25,7 @@
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 
-$id = required_param('id', PARAM_INT);   // course
+$id = required_param('id', PARAM_INT);   // Course.
 
 global $USER, $DB;
 
@@ -47,7 +47,7 @@ $params = array(
 $event = \mod_adobeconnect\event\adobeconnect_view_all::create($params);
 $event->trigger();
 
-/// Get all required strings
+// Get all required strings.
 
 $stradobeconnects   = get_string('modulenameplural', 'adobeconnect');
 $stradobeconnect    = get_string('modulename', 'adobeconnect');
@@ -67,7 +67,7 @@ if (! $adobeconnects = get_all_instances_in_course('adobeconnect', $course)) {
     die;
 }
 
-/// Print the list of instances (your module will probably extend this)
+// Print the list of instances (your module will probably extend this).
 
 $usesections = course_format_uses_sections($course->format);
 if ($usesections) {

@@ -26,7 +26,7 @@ require_once(dirname(__FILE__).'/locallib.php');
 require_once(dirname(__FILE__).'/connect_class.php');
 require_once(dirname(__FILE__).'/connect_class_dom.php');
 
-$id       = required_param('id', PARAM_INT); // course_module ID, or
+$id       = required_param('id', PARAM_INT); // Course_module ID.
 $groupid  = required_param('groupid', PARAM_INT);
 $sesskey  = required_param('sesskey', PARAM_ALPHANUM);
 
@@ -49,7 +49,7 @@ if (! $adobeconnect = $DB->get_record('adobeconnect', $cond)) {
 
 require_login($course, true, $cm);
 
-// Check if the user's email is the Connect Pro user's login
+// Check if the user's email is the Connect Pro user's login.
 $usrobj = new stdClass();
 $usrobj = clone($USER);
 $usrobj->username = set_username($usrobj->username, $usrobj->email);
@@ -58,23 +58,23 @@ $usrcanjoin = false;
 
 $context = context_module::instance($cm->id);
 
-// If separate groups is enabled, check if the user is a part of the selected group
+// If separate groups is enabled, check if the user is a part of the selected group.
 if (NOGROUPS != $cm->groupmode) {
 
     $usrgroups = groups_get_user_groups($cm->course, $usrobj->id);
-    $usrgroups = $usrgroups[0]; // Just want groups and not groupings
+    $usrgroups = $usrgroups[0]; // Just want groups and not groupings.
 
-    $group_exists = false !== array_search($groupid, $usrgroups);
+    $groupexists = false !== array_search($groupid, $usrgroups);
     $aag          = has_capability('moodle/site:accessallgroups', $context);
 
-    if ($group_exists || $aag) {
+    if ($groupexists || $aag) {
         $usrcanjoin = true;
     }
 } else {
     $usrcanjoin = true;
 }
 
-/// Set page global
+// Set page global.
 $url = new moodle_url('/mod/adobeconnect/view.php', array('id' => $cm->id));
 
 $PAGE->set_url($url);
@@ -82,19 +82,19 @@ $PAGE->set_context($context);
 $PAGE->set_title(format_string($adobeconnect->name));
 $PAGE->set_heading($course->fullname);
 
-// user has to be in a group
+// User has to be in a group.
 if ($usrcanjoin and confirm_sesskey($sesskey)) {
 
     $usrprincipal = 0;
     $validuser    = true;
 
-    // Get the meeting sco-id
+    // Get the meeting sco-id.
     $param        = array('instanceid' => $cm->instance, 'groupid' => $groupid);
     $meetingscoid = $DB->get_field('adobeconnect_meeting_groups', 'meetingscoid', $param);
 
     $aconnect = aconnect_login();
 
-    // Check if the meeting still exists in the shared folder of the Adobe server
+    // Check if the meeting still exists in the shared folder of the Adobe server.
     $meetfldscoid = aconnect_get_folder($aconnect, 'meetings');
     $filter       = array('filter-sco-id' => $meetingscoid);
     $meeting      = aconnect_meeting_exists($aconnect, $meetfldscoid, $filter);
@@ -119,56 +119,46 @@ if ($usrcanjoin and confirm_sesskey($sesskey)) {
 
     if (!($usrprincipal = aconnect_user_exists($aconnect, $usrobj))) {
         if (!($usrprincipal = aconnect_create_user($aconnect, $usrobj))) {
-            // DEBUG
-            print_object("error creating user");
-            print_object($aconnect->_xmlresponse);
+            print_error("error creating user");
+            print_error($aconnect->_xmlresponse);
             $validuser = false;
         }
     }
 
-    // Check the user's capabilities and assign them the Adobe Role
+    // Check the user's capabilities and assign them the Adobe Role.
     if (!empty($meetingscoid) and !empty($usrprincipal) and !empty($meeting)) {
         if (has_capability('mod/adobeconnect:meetinghost', $context, $usrobj->id, false)) {
             if (aconnect_check_user_perm($aconnect, $usrprincipal, $meetingscoid, ADOBE_HOST, true)) {
-                //DEBUG
-//                 echo 'host';
-//                 die();
+                true;
             } else {
-                //DEBUG
-                print_object('error assign user adobe host role');
-                print_object($aconnect->_xmlrequest);
-                print_object($aconnect->_xmlresponse);
+                print_error('error assign user adobe host role');
+                print_error($aconnect->_xmlrequest);
+                print_error($aconnect->_xmlresponse);
                 $validuser = false;
             }
-        } elseif (has_capability('mod/adobeconnect:meetingpresenter', $context, $usrobj->id, false)) {
+        } else if (has_capability('mod/adobeconnect:meetingpresenter', $context, $usrobj->id, false)) {
             if (aconnect_check_user_perm($aconnect, $usrprincipal, $meetingscoid, ADOBE_PRESENTER, true)) {
-                //DEBUG
-//                 echo 'presenter';
-//                 die();
+                true;
             } else {
-                //DEBUG
-                print_object('error assign user adobe presenter role');
-                print_object($aconnect->_xmlrequest);
-                print_object($aconnect->_xmlresponse);
+                print_error('error assign user adobe presenter role');
+                print_error($aconnect->_xmlrequest);
+                print_error($aconnect->_xmlresponse);
                 $validuser = false;
             }
-        } elseif (has_capability('mod/adobeconnect:meetingparticipant', $context, $usrobj->id, false)) {
+        } else if (has_capability('mod/adobeconnect:meetingparticipant', $context, $usrobj->id, false)) {
             if (aconnect_check_user_perm($aconnect, $usrprincipal, $meetingscoid, ADOBE_PARTICIPANT, true)) {
-                //DEBUG
-//                 echo 'participant';
-//                 die();
+                true;
             } else {
-                //DEBUG
-                print_object('error assign user adobe particpant role');
-                print_object($aconnect->_xmlrequest);
-                print_object($aconnect->_xmlresponse);
+                print_error('error assign user adobe particpant role');
+                print_error($aconnect->_xmlrequest);
+                print_error($aconnect->_xmlresponse);
                 $validuser = false;
             }
         } else {
-            // Check if meeting is public and allow them to join
+            // Check if meeting is public and allow them to join.
             if ($adobeconnect->meetingpublic) {
-                // if for a public meeting the user does not not have either of presenter or participant capabilities then give
-                // the user the participant role for the meeting
+                // If for a public meeting the user does not not have either of presenter or participant capabilities then give
+                // the user the participant role for the meeting.
                 aconnect_check_user_perm($aconnect, $usrprincipal, $meetingscoid, ADOBE_PARTICIPANT, true);
                 $validuser = true;
             } else {
@@ -182,7 +172,7 @@ if ($usrcanjoin and confirm_sesskey($sesskey)) {
 
     aconnect_logout($aconnect);
 
-    // User is either valid or invalid, if valid redirect user to the meeting url
+    // User is either valid or invalid, if valid redirect user to the meeting url.
     if (empty($validuser)) {
         notice(get_string('notparticipant', 'adobeconnect'), $url);
     } else {
@@ -202,7 +192,7 @@ if ($usrcanjoin and confirm_sesskey($sesskey)) {
 
         $aconnect->request_http_header_login(1, $login);
 
-        // Include the port number only if it is a port other than 80
+        // Include the port number only if it is a port other than 80.
         $port = '';
 
         if (!empty($CFG->adobeconnect_port) and (80 != $CFG->adobeconnect_port)) {

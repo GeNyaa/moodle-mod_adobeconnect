@@ -21,6 +21,8 @@
  * @copyright  (C) 2015 Remote Learner.net Inc http://www.remote-learner.net
  */
 
+defined('MOODLE_INTERNAL') || die;
+
 function xmldb_adobeconnect_uninstall() {
     global $DB;
 

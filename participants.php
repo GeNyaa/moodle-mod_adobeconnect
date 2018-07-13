@@ -21,15 +21,14 @@
  * @copyright  (C) 2015 Remote Learner.net Inc http://www.remote-learner.net
  */
 
-
 require_once(dirname(__FILE__) . '/../../config.php');
 require_once($CFG->dirroot . '/' . $CFG->admin . '/roles/lib.php');
 require_once($CFG->dirroot . '/mod/adobeconnect/locallib.php');
 
 define("MAX_USERS_TO_LIST_PER_ROLE", 10);
 
-$contextid      = required_param('contextid',PARAM_INT);
-$roleid         = optional_param('roleid', 0, PARAM_INT);
+$contextid = required_param('contextid', PARAM_INT);
+$roleid    = optional_param('roleid', 0, PARAM_INT);
 
 list($context, $course, $cm) = get_context_info_array($contextid);
 
@@ -40,8 +39,8 @@ if ($course) {
 } else {
     $isfrontpage = false;
     if ($context->contextlevel == CONTEXT_USER) {
-        $course = $DB->get_record('course', array('id'=>optional_param('courseid', SITEID, PARAM_INT)), '*', MUST_EXIST);
-        $user = $DB->get_record('user', array('id'=>$context->instanceid), '*', MUST_EXIST);
+        $course = $DB->get_record('course', array('id' => optional_param('courseid', SITEID, PARAM_INT)), '*', MUST_EXIST);
+        $user = $DB->get_record('user', array('id' => $context->instanceid), '*', MUST_EXIST);
         $url->param('courseid', $course->id);
         $url->param('userid', $user->id);
     } else {
@@ -50,7 +49,7 @@ if ($course) {
 }
 
 
-// security
+// Security.
 require_login($course, false, $cm);
 require_capability('moodle/role:assign', $context);
 $PAGE->set_url($url);
@@ -59,13 +58,13 @@ $PAGE->set_context($context);
 $contextname = $context->get_context_name();
 $courseid = $course->id;
 
-// These are needed early because of tabs.php
+// These are needed early because of tabs.php.
 list($assignableroles, $assigncounts, $nameswithcounts) =
     adobeconnect_get_assignable_roles($context, ROLENAME_BOTH, true);
 
 $overridableroles = get_overridable_roles($context, ROLENAME_BOTH);
 
-// Make sure this user can assign this role
+// Make sure this user can assign this role.
 if ($roleid && !isset($assignableroles[$roleid])) {
     $a = new stdClass;
     $a->roleid = $roleid;
@@ -97,7 +96,7 @@ if ($roleid) {
     $currentuserselector = new core_role_existing_role_holders('removeselect', $options);
 
 
-    // Process incoming role assignments
+    // Process incoming role assignments.
     $errors = array();
     if (optional_param('add', false, PARAM_BOOL) && confirm_sesskey()) {
         $userstoassign = $potentialuserselector->get_selected_users();
@@ -132,7 +131,7 @@ if ($roleid) {
         }
     }
 
-    // Process incoming role unassignments
+    // Process incoming role unassignments.
     if (optional_param('remove', false, PARAM_BOOL) && confirm_sesskey()) {
         $userstounassign = $currentuserselector->get_selected_users();
         if (!empty($userstounassign)) {
@@ -148,7 +147,7 @@ if ($roleid) {
             );
 
             foreach ($userstounassign as $removeuser) {
-                //unassign only roles that are added manually, no messing with other components!!!
+                // Unassign only roles that are added manually, no messing with other components!!!
                 role_unassign($roleid, $removeuser->id, $context->id, '');
 
                 $params['relateduserid'] = $removeuser->id;
@@ -210,7 +209,7 @@ if ($roleid) {
     }
 
     // Print the form.
-$assignurl = new moodle_url($PAGE->url, array('roleid'=>$roleid));
+    $assignurl = new moodle_url($PAGE->url, array('roleid' => $roleid));
 ?>
 <form id="assignform" method="post" action="<?php echo $assignurl ?>"><div>
   <input type="hidden" name="sesskey" value="<?php echo sesskey() ?>" />
@@ -219,20 +218,32 @@ $assignurl = new moodle_url($PAGE->url, array('roleid'=>$roleid));
     <tr>
       <td id="existingcell">
           <p><label for="removeselect"><?php print_string('extusers', 'role'); ?></label></p>
-          <?php $currentuserselector->display() ?>
+            <?php $currentuserselector->display() ?>
       </td>
       <td id="buttonscell">
           <div id="addcontrols">
-              <input name="add" id="add" type="submit" value="<?php echo $OUTPUT->larrow().'&nbsp;'.get_string('add'); ?>" title="<?php print_string('add'); ?>" /><br />
+              <input
+                name="add"
+                id="add"
+                type="submit"
+                value="<?php echo $OUTPUT->larrow().'&nbsp;'.get_string('add'); ?>"
+                title="<?php print_string('add'); ?>"
+                /><br />
           </div>
 
           <div id="removecontrols">
-              <input name="remove" id="remove" type="submit" value="<?php echo get_string('remove').'&nbsp;'.$OUTPUT->rarrow(); ?>" title="<?php print_string('remove'); ?>" />
+              <input
+              name="remove"
+              id="remove"
+              type="submit"
+              value="<?php echo get_string('remove').'&nbsp;'.$OUTPUT->rarrow(); ?>"
+              title="<?php print_string('remove'); ?>"
+              />
           </div>
       </td>
       <td id="potentialcell">
           <p><label for="addselect"><?php print_string('potusers', 'role'); ?></label></p>
-          <?php $potentialuserselector->display() ?>
+            <?php $potentialuserselector->display() ?>
       </td>
     </tr>
   </table>
@@ -241,16 +252,16 @@ $assignurl = new moodle_url($PAGE->url, array('roleid'=>$roleid));
 <?php
     $PAGE->requires->js_init_call('M.core_role.init_add_assign_page');
 
-    if (!empty($errors)) {
-        $msg = '<p>';
-        foreach ($errors as $e) {
-            $msg .= $e.'<br />';
-        }
-        $msg .= '</p>';
-        echo $OUTPUT->box_start();
-        echo $OUTPUT->notification($msg);
-        echo $OUTPUT->box_end();
+if (!empty($errors)) {
+    $msg = '<p>';
+    foreach ($errors as $e) {
+        $msg .= $e.'<br />';
     }
+    $msg .= '</p>';
+    echo $OUTPUT->box_start();
+    echo $OUTPUT->notification($msg);
+    echo $OUTPUT->box_end();
+}
 
     // Print a form to swap roles, and a link back to the all roles list.
     echo '<div class="backlink">';
@@ -273,7 +284,7 @@ $assignurl = new moodle_url($PAGE->url, array('roleid'=>$roleid));
         echo $OUTPUT->box(get_string('globalroleswarning', 'role'));
     }
 
-    // Print instruction
+    // Print instruction.
     echo $OUTPUT->heading(get_string('chooseroletoassign', 'role'), 3);
 
     // Get the names of role holders for roles with between 1 and MAX_USERS_TO_LIST_PER_ROLE users,
@@ -288,20 +299,25 @@ $assignurl = new moodle_url($PAGE->url, array('roleid'=>$roleid));
             if (!empty($roleusers)) {
                 $strroleusers = array();
                 foreach ($roleusers as $user) {
-                    $strroleusers[] = '<a href="' . $CFG->wwwroot . '/user/view.php?id=' . $user->id . '" >' . fullname($user) . '</a>';
+                    $strroleusers[] = '<a href="' .
+                    $CFG->wwwroot .
+                    '/user/view.php?id=' .
+                    $user->id . '" >' .
+                    fullname($user) .
+                    '</a>';
                 }
                 $roleholdernames[$roleid] = implode('<br />', $strroleusers);
                 $showroleholders = true;
             }
         } else if ($assigncounts[$roleid] > MAX_USERS_TO_LIST_PER_ROLE) {
-            $assignurl = new moodle_url($PAGE->url, array('roleid'=>$roleid));
+            $assignurl = new moodle_url($PAGE->url, array('roleid' => $roleid));
             $roleholdernames[$roleid] = '<a href="'.$assignurl.'">'.$strmorethanmax.'</a>';
         } else {
             $roleholdernames[$roleid] = '';
         }
     }
 
-    // Print overview table
+    // Print overview table.
     $table = new html_table();
     $table->tablealign = 'center';
     $table->width = '60%';
@@ -315,8 +331,8 @@ $assignurl = new moodle_url($PAGE->url, array('roleid'=>$roleid));
     }
 
     foreach ($assignableroles as $roleid => $rolename) {
-        $description = format_string($DB->get_field('role', 'description', array('id'=>$roleid)));
-        $assignurl = new moodle_url($PAGE->url, array('roleid'=>$roleid));
+        $description = format_string($DB->get_field('role', 'description', array('id' => $roleid)));
+        $assignurl = new moodle_url($PAGE->url, array('roleid' => $roleid));
         $row = array('<a href="'.$assignurl.'">'.$rolename.'</a>',
                 $description, $assigncounts[$roleid]);
         if ($showroleholders) {
@@ -328,7 +344,7 @@ $assignurl = new moodle_url($PAGE->url, array('roleid'=>$roleid));
     echo html_writer::table($table);
 
     if ($context->contextlevel > CONTEXT_USER) {
-        echo html_writer::start_tag('div', array('class'=>'backlink'));
+        echo html_writer::start_tag('div', array('class' => 'backlink'));
         echo html_writer::tag('a', get_string('backto', '', $contextname), array('href' => $context->get_url()));
         echo html_writer::end_tag('div');
     }

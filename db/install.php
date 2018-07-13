@@ -21,10 +21,12 @@
  * @copyright  (C) 2015 Remote Learner.net Inc http://www.remote-learner.net
  */
 
+defined('MOODLE_INTERNAL') || die;
+
 function xmldb_adobeconnect_install() {
     global $DB;
 
-    // The commented out code is waiting for a fix for MDL-25709
+    // The commented out code is waiting for a fix for MDL-25709.
     $result = true;
     $timenow = time();
     $sysctx = context_system::instance();
@@ -39,7 +41,7 @@ function xmldb_adobeconnect_install() {
     }
     $coursecreatorrid = array_shift($coursecreator);
 
-    $param = array('shortname' =>'editingteacher');
+    $param = array('shortname' => 'editingteacher');
     $editingteacher = $DB->get_records('role', $param, 'id ASC', 'id', 0, 1);
     if (empty($editingteacher)) {
         $param = array('archetype' => 'editingteacher');
@@ -47,7 +49,7 @@ function xmldb_adobeconnect_install() {
     }
     $editingteacherrid = array_shift($editingteacher);
 
-    $param = array('shortname' =>'teacher');
+    $param = array('shortname' => 'teacher');
     $teacher = $DB->get_records('role', $param, 'id ASC', 'id', 0, 1);
     if (empty($teacher)) {
         $param = array('archetype' => 'teacher');
@@ -130,7 +132,6 @@ function xmldb_adobeconnect_install() {
             core_role_set_assign_allowed($teacherrid->id, $mrole->id);
         }
     }
-
 
     // Fully setup the Adobe Connect Host role.
     $param = array('shortname' => 'adobeconnecthost');

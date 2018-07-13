@@ -41,8 +41,14 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext('adobeconnect_admin_login', get_string('admin_login', 'adobeconnect'),
                        get_string('admin_login_desc', 'adobeconnect'), 'admin', PARAM_TEXT));
 
-    $settings->add(new admin_setting_configpasswordunmask('adobeconnect_admin_password', get_string('admin_password', 'adobeconnect'),
-                       get_string('admin_password_desc', 'adobeconnect'), ''));
+    $settings->add(
+        new admin_setting_configpasswordunmask(
+            'adobeconnect_admin_password',
+            get_string('admin_password', 'adobeconnect'),
+            get_string('admin_password_desc', 'adobeconnect'),
+            ''
+        )
+    );
 
     $settings->add(new admin_setting_configtext('adobeconnect_admin_httpauth', get_string('admin_httpauth', 'adobeconnect'),
                        get_string('admin_httpauth_desc', 'adobeconnect'), 'my-user-id', PARAM_TEXT));

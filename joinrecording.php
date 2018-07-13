@@ -32,7 +32,7 @@ $recscoid   = required_param('recording', PARAM_INT);
 
 global $CFG, $USER, $DB;
 
-// Do the usual Moodle setup
+// Do the usual Moodle setup.
 if (! $cm = get_coursemodule_from_id('adobeconnect', $id)) {
     print_error('Course Module ID was incorrect');
 }
@@ -48,10 +48,7 @@ if (! $adobeconnect = $DB->get_record('adobeconnect', $cond)) {
 
 require_login($course, true, $cm);
 
-// ---------- //
-
-
-// Get HTTPS setting
+// Get HTTPS setting.
 $https      = false;
 $protocol   = 'http://';
 if (isset($CFG->adobeconnect_https) and (!empty($CFG->adobeconnect_https))) {
@@ -59,7 +56,7 @@ if (isset($CFG->adobeconnect_https) and (!empty($CFG->adobeconnect_https))) {
     $protocol   = 'https://';
 }
 
-// Create a Connect Pro login session for this user
+// Create a Connect Pro login session for this user.
 $usrobj = new stdClass();
 $usrobj = clone($USER);
 $login  = $usrobj->username = set_username($usrobj->username, $usrobj->email);
@@ -70,7 +67,7 @@ $sql = "SELECT meetingscoid FROM {adobeconnect_meeting_groups} amg WHERE ".
 
 $meetscoid = $DB->get_record_sql($sql, $params);
 
-// Get the Meeting recording details
+// Get the Meeting recording details.
 $aconnect   = aconnect_login();
 $recording  = array();
 $fldid      = aconnect_get_folder($aconnect, 'content');
@@ -78,7 +75,7 @@ $usrcanjoin = false;
 $context = context_module::instance($cm->id);
 $data       = aconnect_get_recordings($aconnect, $fldid, $meetscoid->meetingscoid);
 
-/// Set page global
+// Set page global.
 $url = new moodle_url('/mod/adobeconnect/view.php', array('id' => $cm->id));
 
 $PAGE->set_url($url);
@@ -91,7 +88,7 @@ if (!empty($data) && array_key_exists($recscoid, $data)) {
     $recording = $data[$recscoid];
 } else {
 
-    // If at first you don't succeed ...
+    // If at first you don't succeed...
     $data2 = aconnect_get_recordings($aconnect, $meetscoid->meetingscoid, $meetscoid->meetingscoid);
 
     if (!empty($data2) && array_key_exists($recscoid, $data2)) {
@@ -106,16 +103,16 @@ if (empty($recording) and confirm_sesskey()) {
     die();
 }
 
-// If separate groups is enabled, check if the user is a part of the selected group
+// If separate groups is enabled, check if the user is a part of the selected group.
 if (NOGROUPS != $cm->groupmode) {
     $usrgroups = groups_get_user_groups($cm->course, $USER
     ->id);
-    $usrgroups = $usrgroups[0]; // Just want groups and not groupings
+    $usrgroups = $usrgroups[0]; // Just want groups and not groupings.
 
-    $group_exists = false !== array_search($groupid, $usrgroups);
+    $groupexists = false !== array_search($groupid, $usrgroups);
     $aag          = has_capability('moodle/site:accessallgroups', $context);
 
-    if ($group_exists || $aag) {
+    if ($groupexists || $aag) {
         $usrcanjoin = true;
     }
 } else {
@@ -136,7 +133,7 @@ $params = array(
 $event = \mod_adobeconnect\event\adobeconnect_view_recording::create($params);
 $event->trigger();
 
-// Include the port number only if it is a port other than 80
+// Include the port number only if it is a port other than 80.
 $port = '';
 
 if (!empty($CFG->adobeconnect_port) and (80 != $CFG->adobeconnect_port)) {

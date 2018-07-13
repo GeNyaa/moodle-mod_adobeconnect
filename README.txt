@@ -27,9 +27,10 @@ Create a directory called "adobeconnect" in your "mod" directory and copy all th
 directory.  Log in to your Moodle site as an administrator and click on the "notifications" link in the Adminsitration block and
 ensure all tables were setup correctly.
 
-You will then be prompted to enter details about Adobe Connect Pro server.  You may not see the 'Test Connection' button at first.  In the
-administrator block click on Modules -> Activities -> Adobe Connect and you should now see the 'Test Connection' button.
-Be sure to test your connection. 
+You will then be prompted to enter details about Adobe Connect Pro server.
+You may not see the 'Test Connection' button at first.  In the administrator block click on
+Modules -> Activities -> Adobe Connect and you should now see the 'Test Connection' button.
+Be sure to test your connection.
 
 Once that is complete you can begin to create and administer meetings.
 

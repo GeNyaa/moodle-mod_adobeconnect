@@ -1,5 +1,5 @@
 /**
- * Calls a PHP script to test the connection parameters 
+ * Calls a PHP script to test the connection parameters
  * to the Adobe Connect server
  * @param object obj This is a form element
  */
